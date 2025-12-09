@@ -186,14 +186,14 @@
 
         .product-info { display: flex; align-items: center; gap: 15px; }
         
-        /* Исправленный стиль для флага-картинки */
-        .flag { 
+        /* СТИЛИ ДЛЯ ИКОНКИ ФЛАГА (КАРТИНКА) */
+        .flag-img { 
             width: 32px; 
             height: 24px; 
             border-radius: 4px; 
             object-fit: cover;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
             display: block;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
         .product-details h3 { margin: 0; font-size: 15px; font-weight: 600; }
@@ -379,13 +379,13 @@
                 
                 <div class="filter-bar">
                     <select class="filter-select" id="country-filter" onchange="filterVPNs()">
-                        <option value="all" data-lang-key="filter_all_countries">🏳️ All Countries</option>
-                        <option value="RU">🇷🇺 Russia</option>
-                        <option value="DE">🇩🇪 Germany</option>
-                        <option value="US">🇺🇸 USA</option>
-                        <option value="NL">🇳🇱 Netherlands</option>
-                        <option value="GB">🇬🇧 UK</option>
-                        <option value="FR">🇫🇷 France</option>
+                        <option value="all" data-lang-key="filter_all_countries">All Countries</option>
+                        <option value="RU">Russia</option>
+                        <option value="DE">Germany</option>
+                        <option value="US">USA</option>
+                        <option value="NL">Netherlands</option>
+                        <option value="GB">UK</option>
+                        <option value="FR">France</option>
                     </select>
                     <select class="filter-select" id="type-filter" onchange="filterVPNs()">
                         <option value="all" data-lang-key="filter_all_types">⚡ All Types</option>
@@ -549,7 +549,7 @@
                 tab_vpn: 'VPN',
                 tab_proxy: 'Прокси',
                 tab_mail: 'Почта',
-                filter_all_countries: '🏳️ Все страны',
+                filter_all_countries: 'Все страны',
                 filter_all_types: '⚡ Все типы',
                 filter_fast: '⚡ Быстрые',
                 filter_p2p: '🛡️ P2P',
@@ -588,7 +588,7 @@
                 tab_vpn: 'VPN',
                 tab_proxy: 'Proxies',
                 tab_mail: 'Mail',
-                filter_all_countries: '🏳️ All Countries',
+                filter_all_countries: 'All Countries',
                 filter_all_types: '⚡ All Types',
                 filter_fast: '⚡ Fast',
                 filter_p2p: '🛡️ P2P',
@@ -644,30 +644,28 @@
             renderVPNList();
         }
 
-        // === VPN DATA (20 servers) ===
-        // Note: The 'flag' emoji property is preserved for compatibility, 
-        // but renderVPNList will now use the 'country' code to fetch a PNG image.
+        // === VPN DATA ===
         const vpnServers = [
-            { country: 'RU', flag: '🇷🇺', name: 'Moscow Private', ping: 12, type: 'gaming', desc_ru: 'Roblox Оптимизирован', desc_en: 'Roblox Optimized' },
-            { country: 'RU', flag: '🇷🇺', name: 'St. Petersburg Fast', ping: 15, type: 'fast', desc_ru: 'Низкая задержка', desc_en: 'Low Latency' },
-            { country: 'DE', flag: '🇩🇪', name: 'Frankfurt Game', ping: 34, type: 'gaming', desc_ru: 'Низкая задержка', desc_en: 'Low Latency' },
-            { country: 'DE', flag: '🇩🇪', name: 'Berlin Streaming', ping: 38, type: 'fast', desc_ru: 'Для стриминга', desc_en: 'For Streaming' },
-            { country: 'US', flag: '🇺🇸', name: 'New York #1', ping: 105, type: 'fast', desc_ru: 'Разблокировка всего', desc_en: 'Unblock ALL' },
-            { country: 'US', flag: '🇺🇸', name: 'Los Angeles Media', ping: 118, type: 'p2p', desc_ru: 'P2P разрешён', desc_en: 'P2P Allowed' },
-            { country: 'US', flag: '🇺🇸', name: 'Chicago Speed', ping: 98, type: 'fast', desc_ru: 'Высокая скорость', desc_en: 'High Speed' },
-            { country: 'NL', flag: '🇳🇱', name: 'Amsterdam P2P', ping: 42, type: 'p2p', desc_ru: 'P2P разрешён', desc_en: 'P2P Allowed' },
-            { country: 'NL', flag: '🇳🇱', name: 'Rotterdam Pro', ping: 45, type: 'fast', desc_ru: 'Для игр', desc_en: 'For Gaming' },
-            { country: 'GB', flag: '🇬🇧', name: 'London Prime', ping: 52, type: 'fast', desc_ru: 'Премиум скорость', desc_en: 'Premium Speed' },
-            { country: 'GB', flag: '🇬🇧', name: 'Manchester Game', ping: 55, type: 'gaming', desc_ru: 'Оптимизирован', desc_en: 'Optimized' },
-            { country: 'FR', flag: '🇫🇷', name: 'Paris Elite', ping: 48, type: 'fast', desc_ru: 'Высокая скорость', desc_en: 'High Speed' },
-            { country: 'FR', flag: '🇫🇷', name: 'Lyon Secure', ping: 51, type: 'p2p', desc_ru: 'P2P + Защита', desc_en: 'P2P + Secure' },
-            { country: 'RU', flag: '🇷🇺', name: 'Moscow #2', ping: 14, type: 'p2p', desc_ru: 'P2P разрешён', desc_en: 'P2P Allowed' },
-            { country: 'DE', flag: '🇩🇪', name: 'Munich Ultra', ping: 40, type: 'gaming', desc_ru: 'Для игр Pro', desc_en: 'Gaming Pro' },
-            { country: 'US', flag: '🇺🇸', name: 'Miami Beach', ping: 112, type: 'fast', desc_ru: 'Стриминг 4K', desc_en: '4K Streaming' },
-            { country: 'NL', flag: '🇳🇱', name: 'Amsterdam #2', ping: 43, type: 'fast', desc_ru: 'Быстрый канал', desc_en: 'Fast Channel' },
-            { country: 'GB', flag: '🇬🇧', name: 'Edinburgh Secure', ping: 58, type: 'p2p', desc_ru: 'Безопасный P2P', desc_en: 'Safe P2P' },
-            { country: 'FR', flag: '🇫🇷', name: 'Marseille Stream', ping: 53, type: 'fast', desc_ru: 'HD стриминг', desc_en: 'HD Streaming' },
-            { country: 'RU', flag: '🇷🇺', name: 'Novosibirsk East', ping: 18, type: 'gaming', desc_ru: 'Азия сервер', desc_en: 'Asia Server' }
+            { country: 'RU', name: 'Moscow Private', ping: 12, type: 'gaming', desc_ru: 'Roblox Оптимизирован', desc_en: 'Roblox Optimized' },
+            { country: 'RU', name: 'St. Petersburg Fast', ping: 15, type: 'fast', desc_ru: 'Низкая задержка', desc_en: 'Low Latency' },
+            { country: 'DE', name: 'Frankfurt Game', ping: 34, type: 'gaming', desc_ru: 'Низкая задержка', desc_en: 'Low Latency' },
+            { country: 'DE', name: 'Berlin Streaming', ping: 38, type: 'fast', desc_ru: 'Для стриминга', desc_en: 'For Streaming' },
+            { country: 'US', name: 'New York #1', ping: 105, type: 'fast', desc_ru: 'Разблокировка всего', desc_en: 'Unblock ALL' },
+            { country: 'US', name: 'Los Angeles Media', ping: 118, type: 'p2p', desc_ru: 'P2P разрешён', desc_en: 'P2P Allowed' },
+            { country: 'US', name: 'Chicago Speed', ping: 98, type: 'fast', desc_ru: 'Высокая скорость', desc_en: 'High Speed' },
+            { country: 'NL', name: 'Amsterdam P2P', ping: 42, type: 'p2p', desc_ru: 'P2P разрешён', desc_en: 'P2P Allowed' },
+            { country: 'NL', name: 'Rotterdam Pro', ping: 45, type: 'fast', desc_ru: 'Для игр', desc_en: 'For Gaming' },
+            { country: 'GB', name: 'London Prime', ping: 52, type: 'fast', desc_ru: 'Премиум скорость', desc_en: 'Premium Speed' },
+            { country: 'GB', name: 'Manchester Game', ping: 55, type: 'gaming', desc_ru: 'Оптимизирован', desc_en: 'Optimized' },
+            { country: 'FR', name: 'Paris Elite', ping: 48, type: 'fast', desc_ru: 'Высокая скорость', desc_en: 'High Speed' },
+            { country: 'FR', name: 'Lyon Secure', ping: 51, type: 'p2p', desc_ru: 'P2P + Защита', desc_en: 'P2P + Secure' },
+            { country: 'RU', name: 'Moscow #2', ping: 14, type: 'p2p', desc_ru: 'P2P разрешён', desc_en: 'P2P Allowed' },
+            { country: 'DE', name: 'Munich Ultra', ping: 40, type: 'gaming', desc_ru: 'Для игр Pro', desc_en: 'Gaming Pro' },
+            { country: 'US', name: 'Miami Beach', ping: 112, type: 'fast', desc_ru: 'Стриминг 4K', desc_en: '4K Streaming' },
+            { country: 'NL', name: 'Amsterdam #2', ping: 43, type: 'fast', desc_ru: 'Быстрый канал', desc_en: 'Fast Channel' },
+            { country: 'GB', name: 'Edinburgh Secure', ping: 58, type: 'p2p', desc_ru: 'Безопасный P2P', desc_en: 'Safe P2P' },
+            { country: 'FR', name: 'Marseille Stream', ping: 53, type: 'fast', desc_ru: 'HD стриминг', desc_en: 'HD Streaming' },
+            { country: 'RU', name: 'Novosibirsk East', ping: 18, type: 'gaming', desc_ru: 'Азия сервер', desc_en: 'Asia Server' }
         ];
 
         let filteredVPNs = [...vpnServers];
@@ -694,14 +692,15 @@
                 const pingText = currentLang === 'ru' ? 'Пинг:' : 'Ping:';
                 const btnText = currentLang === 'ru' ? 'ВКЛЮЧИТЬ' : 'CONNECT';
                 
-                // FIX: Use an image from flagcdn instead of the emoji char to prevent rendering issues on Windows/Telegram Desktop
+                // === FIX: USE IMAGE INSTEAD OF EMOJI ===
+                // This downloads a PNG flag based on country code (RU, US, etc)
                 const flagUrl = `https://flagcdn.com/w80/${vpn.country.toLowerCase()}.png`;
                 
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.innerHTML = `
                     <div class="product-info">
-                        <img src="${flagUrl}" class="flag" alt="${vpn.country}">
+                        <img src="${flagUrl}" class="flag-img" alt="${vpn.country}">
                         <div class="product-details">
                             <h3>${vpn.name}</h3>
                             <p>${pingText} ${vpn.ping}ms | ${desc}</p>
