@@ -185,7 +185,17 @@
         }
 
         .product-info { display: flex; align-items: center; gap: 15px; }
-        .flag { font-size: 24px; }
+        
+        /* Исправленный стиль для флага-картинки */
+        .flag { 
+            width: 32px; 
+            height: 24px; 
+            border-radius: 4px; 
+            object-fit: cover;
+            display: block;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
         .product-details h3 { margin: 0; font-size: 15px; font-weight: 600; }
         .product-details p { margin: 4px 0 0 0; font-size: 12px; color: var(--text-muted); }
 
@@ -635,6 +645,8 @@
         }
 
         // === VPN DATA (20 servers) ===
+        // Note: The 'flag' emoji property is preserved for compatibility, 
+        // but renderVPNList will now use the 'country' code to fetch a PNG image.
         const vpnServers = [
             { country: 'RU', flag: '🇷🇺', name: 'Moscow Private', ping: 12, type: 'gaming', desc_ru: 'Roblox Оптимизирован', desc_en: 'Roblox Optimized' },
             { country: 'RU', flag: '🇷🇺', name: 'St. Petersburg Fast', ping: 15, type: 'fast', desc_ru: 'Низкая задержка', desc_en: 'Low Latency' },
@@ -682,11 +694,14 @@
                 const pingText = currentLang === 'ru' ? 'Пинг:' : 'Ping:';
                 const btnText = currentLang === 'ru' ? 'ВКЛЮЧИТЬ' : 'CONNECT';
                 
+                // FIX: Use an image from flagcdn instead of the emoji char to prevent rendering issues on Windows/Telegram Desktop
+                const flagUrl = `https://flagcdn.com/w80/${vpn.country.toLowerCase()}.png`;
+                
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.innerHTML = `
                     <div class="product-info">
-                        <span class="flag">${vpn.flag}</span>
+                        <img src="${flagUrl}" class="flag" alt="${vpn.country}">
                         <div class="product-details">
                             <h3>${vpn.name}</h3>
                             <p>${pingText} ${vpn.ping}ms | ${desc}</p>
