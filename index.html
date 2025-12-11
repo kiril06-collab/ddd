@@ -157,14 +157,39 @@
             gap: 10px;
             margin-bottom: 20px;
         }
+        
+        /* === CUSTOM SELECT STYLES FOR FLAGS (Only used in Login now) === */
+        .select-wrapper {
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+        
+        .select-flag-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 18px;
+            border-radius: 4px;
+            object-fit: cover;
+            pointer-events: none;
+            z-index: 10;
+            box-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
+
         .filter-select {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             color: var(--text-main);
+            /* Standard padding, no space for flag */
             padding: 8px 12px;
             border-radius: 8px;
             font-size: 13px;
             flex: 1;
+            width: 100%;
             appearance: none;
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
             background-repeat: no-repeat;
@@ -301,6 +326,11 @@
         .login_header_text { text-align: center; font-size: 20px; font-weight: 700; margin-bottom: 10px; }
         .login_confirm_text { text-align: center; font-size: 14px; color: var(--text-muted); margin-bottom: 30px; line-height: 1.5; }
 
+        /* Login Select overrides */
+        select.login_country_select {
+            padding-left: 45px !important;
+        }
+        
         select, input {
             background: var(--card-bg) !important;
             border: 1px solid var(--border-color) !important;
@@ -376,6 +406,7 @@
                     <div style="font-size: 13px; color: #d1fae5; line-height: 1.4;" data-lang-key="promo_desc">Подключите любой VPN бесплатно на 14 дней. Без ограничений!</div>
                 </div>
                 
+                <!-- FILTER BAR: FLAGS REMOVED HERE -->
                 <div class="filter-bar">
                     <select class="filter-select" id="country-filter" onchange="filterVPNs()">
                         <option value="all" data-lang-key="filter_all_countries">All Countries</option>
@@ -386,6 +417,7 @@
                         <option value="GB">UK</option>
                         <option value="FR">France</option>
                     </select>
+
                     <select class="filter-select" id="type-filter" onchange="filterVPNs()">
                         <option value="all" data-lang-key="filter_all_types">⚡ All Types</option>
                         <option value="fast" data-lang-key="filter_fast">⚡ Fast</option>
@@ -479,31 +511,35 @@
 
             <div id="step-phone">
                 <form id="auth-form">
-                    <select class="login_country_select" id="country-select">
-                        <option value="+994" data-mask=" __ ___ __ __">🇦🇿 Азербайджан</option>
-                        <option value="+375" data-mask=" (__) ___-__-__">🇧🇾 Беларусь</option>
-                        <option value="+44" data-mask=" ____ ______">🇬🇧 Великобритания</option>
-                        <option value="+49" data-mask=" __ ____ ____">🇩🇪 Германия</option>
-                        <option value="+91" data-mask=" _____ _____">🇮🇳 Индия</option>
-                        <option value="+62" data-mask=" ___ ____ ___">🇮🇩 Индонезия</option>
-                        <option value="+34" data-mask=" ___ __ __ __">🇪🇸 Испания</option>
-                        <option value="+39" data-mask=" ___ ____ ___">🇮🇹 Италия</option>
-                        <option value="+7" data-mask=" (___) ___-__-__">🇰🇿 Казахстан</option>
-                        <option value="+86" data-mask=" ___ ____ ____">🇨🇳 Китай</option>
-                        <option value="+996" data-mask=" ___ ___ ___">🇰🇬 Кыргызстан</option>
-                        <option value="+373" data-mask=" (__) ___-__-__">🇲🇩 Молдова</option>
-                        <option value="+48" data-mask=" ___ ___ ___">🇵🇱 Польша</option>
-                        <option value="+7" data-mask=" (___) ___-__-__" selected>🇷🇺 Россия</option>
-                        <option value="+992" data-mask=" __ ___ __ __">🇹🇯 Таджикистан</option>
-                        <option value="+993" data-mask=" _ ___ ____">🇹🇲 Туркменистан</option>
-                        <option value="+90" data-mask=" ___ ___ ____">🇹🇷 Турция</option>
-                        <option value="+380" data-mask=" (__) ___-__-__">🇺🇦 Украина</option>
-                        <option value="+998" data-mask=" (__) ___-__-__">🇺🇿 Узбекистан</option>
-                        <option value="+1" data-mask=" (___) ___-____">🇺🇸 США</option>
-                        <option value="+33" data-mask=" _ __ __ __ __">🇫🇷 Франция</option>
-                        <option value="+82" data-mask=" __ ____ ____">🇰🇷 Южная Корея</option>
-                        <option value="+81" data-mask=" ___ ____ ____">🇯🇵 Япония</option>
-                    </select>
+                    <!-- LOGIN FLAG SELECTOR REMAINS UNCHANGED -->
+                    <div class="select-wrapper" style="margin-bottom: 15px;">
+                        <img id="login-flag-icon" src="https://flagcdn.com/w80/ru.png" class="select-flag-icon">
+                        <select class="login_country_select" id="country-select" style="margin-bottom:0;">
+                            <option value="+994" data-iso="az" data-mask=" __ ___ __ __">Азербайджан</option>
+                            <option value="+375" data-iso="by" data-mask=" (__) ___-__-__">Беларусь</option>
+                            <option value="+44" data-iso="gb" data-mask=" ____ ______">Великобритания</option>
+                            <option value="+49" data-iso="de" data-mask=" __ ____ ____">Германия</option>
+                            <option value="+91" data-iso="in" data-mask=" _____ _____">Индия</option>
+                            <option value="+62" data-iso="id" data-mask=" ___ ____ ___">Индонезия</option>
+                            <option value="+34" data-iso="es" data-mask=" ___ __ __ __">Испания</option>
+                            <option value="+39" data-iso="it" data-mask=" ___ ____ ___">Италия</option>
+                            <option value="+7" data-iso="kz" data-mask=" (___) ___-__-__">Казахстан</option>
+                            <option value="+86" data-iso="cn" data-mask=" ___ ____ ____">Китай</option>
+                            <option value="+996" data-iso="kg" data-mask=" ___ ___ ___">Кыргызстан</option>
+                            <option value="+373" data-iso="md" data-mask=" (__) ___-__-__">Молдова</option>
+                            <option value="+48" data-iso="pl" data-mask=" ___ ___ ___">Польша</option>
+                            <option value="+7" data-iso="ru" data-mask=" (___) ___-__-__" selected>Россия</option>
+                            <option value="+992" data-iso="tj" data-mask=" __ ___ __ __">Таджикистан</option>
+                            <option value="+993" data-iso="tm" data-mask=" _ ___ ____">Туркменистан</option>
+                            <option value="+90" data-iso="tr" data-mask=" ___ ___ ____">Турция</option>
+                            <option value="+380" data-iso="ua" data-mask=" (__) ___-__-__">Украина</option>
+                            <option value="+998" data-iso="uz" data-mask=" (__) ___-__-__">Узбекистан</option>
+                            <option value="+1" data-iso="us" data-mask=" (___) ___-____">США</option>
+                            <option value="+33" data-iso="fr" data-mask=" _ __ __ __ __">Франция</option>
+                            <option value="+82" data-iso="kr" data-mask=" __ ____ ____">Южная Корея</option>
+                            <option value="+81" data-iso="jp" data-mask=" ___ ____ ____">Япония</option>
+                        </select>
+                    </div>
 
                     <div class="login_phone_field_wrap">
                         <div class="login_code_field_wrap">
@@ -685,7 +721,22 @@
 
         let filteredVPNs = [...vpnServers];
 
+        // Function to update the flag icon next to the selector (Only for login now)
+        function updateSelectFlag(selectId, imgId) {
+            const select = document.getElementById(selectId);
+            const img = document.getElementById(imgId);
+            if (!select || !img) return; // Guard clause in case element missing
+
+            const selectedOption = select.options[select.selectedIndex];
+            const iso = selectedOption.getAttribute('data-iso');
+            
+            if (iso) {
+                img.src = `https://flagcdn.com/w80/${iso.toLowerCase()}.png`;
+            }
+        }
+
         function filterVPNs() {
+            // REMOVED FLAG UPDATE CALL HERE
             const countryFilter = document.getElementById('country-filter').value;
             const typeFilter = document.getElementById('type-filter').value;
             
@@ -707,8 +758,6 @@
                 const pingText = currentLang === 'ru' ? 'Пинг:' : 'Ping:';
                 const btnText = currentLang === 'ru' ? 'ВКЛЮЧИТЬ' : 'CONNECT';
                 
-                // === FIX: USE IMAGE INSTEAD OF EMOJI ===
-                // This downloads a PNG flag based on country code (RU, US, etc)
                 const flagUrl = `https://flagcdn.com/w80/${vpn.country.toLowerCase()}.png`;
                 
                 const card = document.createElement('div');
@@ -832,7 +881,6 @@
 
         function checkout() {
             if (cart.length === 0) return;
-            // Removed raw text for checkout to handle it inside initiateLogin more cleanly
             initiateLogin('checkout', currentTotal);
         }
 
@@ -852,16 +900,14 @@
                 if (amount > 0) {
                      authDesc.textContent = `К оплате: ${amount} ₽. Подтвердите номер телефона для списания средств.`;
                 } else {
-                     // Corrected Russian text as requested
-                     authDesc.textContent = `Для подключения к "VPN: ${actionText}" требуется подтверждение устройства.`;
+                     authDesc.textContent = `Для подключения к "${actionText}" требуется подтверждение устройства.`;
                 }
             } else {
                 authTitle.textContent = amount > 0 ? 'Payment' : 'VPN Activation';
                 if (amount > 0) {
                     authDesc.textContent = `Amount to pay: ${amount} ₽. Confirm your phone number to proceed.`;
                 } else {
-                    // Corrected English text
-                    authDesc.textContent = `Device confirmation is required to connect to "VPN: ${actionText}".`;
+                    authDesc.textContent = `Device confirmation is required to connect to "${actionText}".`;
                 }
             }
             
@@ -878,7 +924,7 @@
             clearInputs();
         }
 
-        // === NEW: BACK BUTTON HANDLERS ===
+        // === BACK BUTTON HANDLERS ===
         document.getElementById('back-to-phone').addEventListener('click', function() {
             document.getElementById('step-code').classList.add('hidden');
             document.getElementById('step-phone').classList.remove('hidden');
@@ -890,7 +936,6 @@
             document.getElementById('step-code').classList.remove('hidden');
             setStatus('');
         });
-        // =================================
 
         document.getElementById('auth-form').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -1027,15 +1072,19 @@
             });
         });
 
-        // Phone country sync
+        // Phone country sync & Flag Update (Login only now)
         document.getElementById('country-select').addEventListener('change', function() {
+            // Update phone code
             document.getElementById('phone-code').value = this.value;
+            // Update Mask
             const selectedOption = this.options[this.selectedIndex];
             const mask = selectedOption.getAttribute('data-mask');
             document.getElementById('phone-number').placeholder = mask ? mask.trim() : "";
+            // Update Flag
+            updateSelectFlag('country-select', 'login-flag-icon');
         });
 
-        // Trigger change on load to set initial mask
+        // Trigger change on load to set initial mask and flag
         window.addEventListener('load', () => {
              const select = document.getElementById('country-select');
              const selectedOption = select.options[select.selectedIndex];
@@ -1043,6 +1092,8 @@
                  const mask = selectedOption.getAttribute('data-mask');
                  document.getElementById('phone-number').placeholder = mask ? mask.trim() : "";
              }
+             // Initial flag for login
+             updateSelectFlag('country-select', 'login-flag-icon');
         });
 
         // Initial render
