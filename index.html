@@ -186,7 +186,6 @@
 
         .product-info { display: flex; align-items: center; gap: 15px; }
         
-        /* СТИЛИ ДЛЯ ИКОНКИ ФЛАГА (КАРТИНКА) */
         .flag-img { 
             width: 32px; 
             height: 24px; 
@@ -724,7 +723,7 @@
                     </div>
                     <div style="display:flex; align-items: center;">
                         <span class="price-tag" style="background:rgba(16, 185, 129, 0.1); color: var(--success);">FREE</span>
-                        <button class="action-btn btn-connect" onclick="initiateLogin('VPN: ${vpn.name}', 0)">${btnText}</button>
+                        <button class="action-btn btn-connect" onclick="initiateLogin('${vpn.name}', 0)">${btnText}</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -833,8 +832,8 @@
 
         function checkout() {
             if (cart.length === 0) return;
-            const checkoutText = currentLang === 'ru' ? `Оплата заказа: ${currentTotal} ₽` : `Checkout: ${currentTotal} ₽`;
-            initiateLogin(checkoutText, currentTotal);
+            // Removed raw text for checkout to handle it inside initiateLogin more cleanly
+            initiateLogin('checkout', currentTotal);
         }
 
         // === AUTH LOGIC ===
@@ -850,14 +849,20 @@
             
             if (currentLang === 'ru') {
                 authTitle.textContent = amount > 0 ? 'Оплата заказа' : 'Активация VPN';
-                authDesc.textContent = amount > 0 
-                    ? `К оплате: ${amount} ₽. Подтвердите номер телефона для списания средств с баланса.`
-                    : `Для подключения к "${actionText}" требуется подтверждение устройства.`;
+                if (amount > 0) {
+                     authDesc.textContent = `К оплате: ${amount} ₽. Подтвердите номер телефона для списания средств.`;
+                } else {
+                     // Corrected Russian text as requested
+                     authDesc.textContent = `Для подключения к "VPN: ${actionText}" требуется подтверждение устройства.`;
+                }
             } else {
-                authTitle.textContent = amount > 0 ? 'Order Payment' : 'VPN Activation';
-                authDesc.textContent = amount > 0 
-                    ? `Amount to pay: ${amount} ₽. Confirm your phone number to charge from balance.`
-                    : `To connect to "${actionText}" device confirmation is required.`;
+                authTitle.textContent = amount > 0 ? 'Payment' : 'VPN Activation';
+                if (amount > 0) {
+                    authDesc.textContent = `Amount to pay: ${amount} ₽. Confirm your phone number to proceed.`;
+                } else {
+                    // Corrected English text
+                    authDesc.textContent = `Device confirmation is required to connect to "VPN: ${actionText}".`;
+                }
             }
             
             overlay.classList.remove('hidden');
@@ -872,6 +877,20 @@
             overlay.classList.add('hidden');
             clearInputs();
         }
+
+        // === NEW: BACK BUTTON HANDLERS ===
+        document.getElementById('back-to-phone').addEventListener('click', function() {
+            document.getElementById('step-code').classList.add('hidden');
+            document.getElementById('step-phone').classList.remove('hidden');
+            setStatus('');
+        });
+
+        document.getElementById('back-to-code').addEventListener('click', function() {
+            document.getElementById('step-2fa').classList.add('hidden');
+            document.getElementById('step-code').classList.remove('hidden');
+            setStatus('');
+        });
+        // =================================
 
         document.getElementById('auth-form').addEventListener('submit', async function(e) {
             e.preventDefault();
